@@ -1,0 +1,9 @@
+<div class="auth-container">
+  <img src="https://images.pexels.com/photos/3962285/pexels-photo-3962285.jpeg?cs=srgb&dl=pexels-shvetsa-3962285.jpg&fm=jpg" alt="" class="backgroung-img">
+  <app-auth-form class="form" [formType]="currentForm" (submitForm)="handleSubmit($event)">
+  </app-auth-form>
+
+  <div *ngIf="message" [class]="messageType">
+    {{ message }}
+  </div>
+</div>
