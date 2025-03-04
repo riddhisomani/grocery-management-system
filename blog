@@ -1,0 +1,279 @@
+json data:
+{
+  "blogs": [
+    {
+      "id": "001",
+      "title": "Food Grocery Logistics - Frequency of Shoppers",
+      "image": "/assets/images/grocery-logistics.jpg",
+      "type": "Food",
+      "description": "Most Americans go grocery shopping at least once or twice a week. In addition to visiting a grocery store, many also use online platforms for their shopping needs.",
+      "publishedDate": "2025-12-24T00:00:00",
+      "blogInfo": {
+        "carouselImages": [
+          "/assets/images/grocery-logistics-1.jpg",
+          "/assets/images/grocery-logistics-2.jpg",
+          "/assets/images/grocery-logistics-3.jpg"
+        ],
+        "postBy": "John Doe",
+        "fullDescription": "Detailed description about grocery shopping habits and logistics in the United States, exploring consumer behaviors, shopping frequencies, and emerging trends in food retail."
+      }
+    },
+    {
+      "id": "002", 
+      "title": "Different Types of Consumer Goods",
+      "image": "/assets/images/consumer-goods.jpg",
+      "type": "Retail",
+      "description": "An overview of the main categories of consumer goods in the US durable, non-doable and service-based products.",
+      "publishedDate": "2025-02-21T00:00:00",
+      "blogInfo": {
+        "carouselImages": [
+          "/assets/images/consumer-goods-1.jpg",
+          "/assets/images/consumer-goods-2.jpg",
+          "/assets/images/consumer-goods-3.jpg"
+        ],
+        "postBy": "Jane Smith",
+        "fullDescription": "Comprehensive analysis of consumer goods categories, including convenience goods, shopping goods, specialty goods, and their impact on modern retail markets."
+      }
+    }
+  ]
+}
+
+card component:
+import { Component, Input, Output, EventEmitter } from '@angular/core';
+
+@Component({
+  selector: 'app-blog-card',
+  template: `
+    <div 
+      class="blog-card cursor-pointer hover:shadow-lg transition-all duration-300 ease-in-out"
+      (click)="onBlogClick()"
+    >
+      <div class="blog-image-container">
+        <img 
+          [src]="blog.image" 
+          alt="{{ blog.title }}"
+          class="w-full h-48 object-cover rounded-t-lg"
+        />
+      </div>
+      <div class="p-4">
+        <h3 class="text-xl font-bold mb-2">{{ blog.title }}</h3>
+        <p class="text-gray-600 mb-4">{{ blog.description }}</p>
+        <div class="flex justify-between items-center">
+          <span class="text-sm text-gray-500">
+            {{ blog.publishedDate | date:'mediumDate' }}
+          </span>
+          <span class="text-sm text-blue-600">{{ blog.type }}</span>
+        </div>
+      </div>
+    </div>
+  `,
+  styles: [`
+    .blog-card {
+      border: 1px solid #e2e8f0;
+      border-radius: 0.5rem;
+      background-color: white;
+    }
+  `]
+})
+export class BlogCardComponent {
+  @Input() blog: any;
+  @Output() blogClick = new EventEmitter<string>();
+
+  onBlogClick() {
+    this.blogClick.emit(this.blog.id);
+  }
+}
+
+blog-detail
+
+import { Component, Input, Output, EventEmitter } from '@angular/core';
+
+@Component({
+  selector: 'app-blog-detail',
+  template: `
+    <div class="blog-detail-container p-6 bg-white rounded-lg shadow-xl">
+      <div class="blog-carousel mb-6 relative">
+        <div class="carousel-container relative overflow-hidden">
+          <div 
+            class="carousel-inner flex transition-transform duration-500"
+            [style.transform]="'translateX(-' + (currentSlide * 100) + '%)'">
+            <div 
+              *ngFor="let image of blog.blogInfo.carouselImages" 
+              class="carousel-item flex-shrink-0 w-full"
+            >
+              <img 
+                [src]="image" 
+                alt="Blog Carousel Image"
+                class="w-full h-[500px] object-cover rounded-lg"
+              />
+            </div>
+          </div>
+          
+          <!-- Carousel Navigation -->
+          <button 
+            *ngIf="blog.blogInfo.carouselImages.length > 1"
+            (click)="prevSlide()"
+            class="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/50 p-2 rounded-full"
+          >
+            ←
+          </button>
+          <button 
+            *ngIf="blog.blogInfo.carouselImages.length > 1"
+            (click)="nextSlide()"
+            class="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/50 p-2 rounded-full"
+          >
+            →
+          </button>
+        </div>
+      </div>
+
+      <div class="blog-content">
+        <h1 class="text-3xl font-bold mb-4">{{ blog.title }}</h1>
+        <div class="blog-meta flex items-center mb-4">
+          <span class="mr-4 text-gray-600">
+            Published on: {{ blog.publishedDate | date:'mediumDate' }}
+          </span>
+          <span class="text-blue-600">By {{ blog.blogInfo.postBy }}</span>
+        </div>
+        
+        <div class="blog-description text-lg mb-6">
+          <p>{{ blog.blogInfo.fullDescription }}</p>
+        </div>
+      </div>
+
+      <button 
+        (click)="closeDetail()"
+        class="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+      >
+        Close
+      </button>
+    </div>
+  `
+})
+export class BlogDetailComponent {
+  @Input() blog: any;
+  @Output() closeDetail = new EventEmitter<void>();
+
+  currentSlide = 0;
+
+  nextSlide() {
+    this.currentSlide = (this.currentSlide + 1) % this.blog.blogInfo.carouselImages.length;
+  }
+
+  prevSlide() {
+    this.currentSlide = (this.currentSlide - 1 + this.blog.blogInfo.carouselImages.length) 
+      % this.blog.blogInfo.carouselImages.length;
+  }
+
+  closeDetail() {
+    this.closeDetail.emit();
+  }
+}
+
+blog page
+import { Component, OnInit } from '@angular/core';
+import blogData from './blog-data.json';
+
+@Component({
+  selector: 'app-blog-page',
+  template: `
+    <div class="blog-page-container flex">
+      <!-- Main Blog Content -->
+      <div class="blog-main-content w-3/4 p-6">
+        <h1 class="text-3xl font-bold mb-6">All Blog Posts</h1>
+        
+        <div 
+          *ngIf="!selectedBlog"
+          class="grid grid-cols-2 gap-6"
+        >
+          <app-blog-card 
+            *ngFor="let blog of filteredBlogs"
+            [blog]="blog"
+            (blogClick)="openBlogDetail($event)"
+          ></app-blog-card>
+        </div>
+
+        <app-blog-detail 
+          *ngIf="selectedBlog"
+          [blog]="selectedBlog"
+          (closeDetail)="closeBlogDetail()"
+        ></app-blog-detail>
+      </div>
+
+      <!-- Sidebar -->
+      <div class="blog-sidebar w-1/4 p-6 bg-gray-100">
+        <h2 class="text-xl font-bold mb-4">Filter by Year</h2>
+        <div class="year-filters">
+          <button 
+            *ngFor="let year of availableYears"
+            (click)="filterByYear(year)"
+            class="block w-full text-left py-2 px-4 
+              hover:bg-blue-100 
+              {{ selectedYear === year ? 'bg-blue-200' : '' }}"
+          >
+            {{ year }}
+          </button>
+        </div>
+
+        <h3 class="text-lg font-semibold mt-6 mb-4">Related Blogs</h3>
+        <div class="related-blogs">
+          <app-blog-card 
+            *ngFor="let relatedBlog of relatedBlogs"
+            [blog]="relatedBlog"
+            (blogClick)="openBlogDetail($event)"
+            class="mb-4 block"
+          ></app-blog-card>
+        </div>
+      </div>
+    </div>
+  `
+})
+
+blog page component
+
+export class BlogPageComponent implements OnInit {
+  blogs: any[] = blogData.blogs;
+  filteredBlogs: any[] = [];
+  availableYears: number[] = [];
+  selectedYear: number | null = null;
+  selectedBlog: any = null;
+
+  ngOnInit() {
+    this.extractAvailableYears();
+    this.filteredBlogs = this.blogs;
+  }
+
+  extractAvailableYears() {
+    this.availableYears = [...new Set(
+      this.blogs.map(blog => new Date(blog.publishedDate).getFullYear())
+    )].sort((a, b) => b - a);
+  }
+
+  filterByYear(year: number) {
+    this.selectedYear = this.selectedYear === year ? null : year;
+    this.filteredBlogs = this.selectedYear
+      ? this.blogs.filter(blog => 
+          new Date(blog.publishedDate).getFullYear() === this.selectedYear
+        )
+      : this.blogs;
+  }
+
+  openBlogDetail(blogId: string) {
+    this.selectedBlog = this.blogs.find(blog => blog.id === blogId);
+    this.relatedBlogs = this.blogs.filter(
+      blog => blog.id !== blogId
+    ).slice(0, 3);
+  }
+
+  closeBlogDetail() {
+    this.selectedBlog = null;
+    this.relatedBlogs = [];
+  }
+
+  relatedBlogs: any[] = [];
+}
+
+
+
+
+
